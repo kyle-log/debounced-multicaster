@@ -1,0 +1,16 @@
+version: "3.13.0"
+services:
+  rabbitmq:
+    image: rabbitmq:3.13.0-rc.2-management-alpine
+    container_name: rabbitmq2
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: kyle
+      RABBITMQ_DEFAULT_PASS: 1234
+  redis:
+    image: redis:6.2.5-alpine
+    container_name: redis2
+    ports:
+      - "6379:6379"

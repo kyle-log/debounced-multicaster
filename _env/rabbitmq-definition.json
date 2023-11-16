@@ -1,0 +1,117 @@
+{
+  "rabbit_version": "3.13.0",
+  "rabbitmq_version": "3.13.0",
+  "product_name": "RabbitMQ",
+  "product_version": "3.13.0",
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "parameters": [
+    {
+      "value": {
+        "max-connections": 100,
+        "max-queues": 100
+      },
+      "vhost": "/",
+      "component": "vhost-limits",
+      "name": "limits"
+    }
+  ],
+  "global_parameters": [
+    {
+      "name": "cluster-name",
+      "value": "value"
+    }
+  ],
+  "queues": [
+    {
+      "name": "worker",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "amq.direct",
+        "x-dead-letter-routing-key": "worker.wait",
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "worker.wait",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "amq.direct",
+        "x-dead-letter-routing-key": "worker",
+        "x-message-ttl": 3000,
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "worker.dead",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "worker.lazy",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "amq.direct",
+        "x-dead-letter-routing-key": "worker",
+        "x-message-ttl": 100000,
+        "x-queue-type": "classic"
+      }
+    }
+  ],
+  "exchanges": [],
+  "bindings": [
+    {
+      "source": "amq.fanout",
+      "vhost": "/",
+      "destination": "worker",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "amq.direct",
+      "vhost": "/",
+      "destination": "worker",
+      "destination_type": "queue",
+      "routing_key": "worker",
+      "arguments": {}
+    },
+    {
+      "source": "amq.direct",
+      "vhost": "/",
+      "destination": "worker.wait",
+      "destination_type": "queue",
+      "routing_key": "worker.wait",
+      "arguments": {}
+    },
+    {
+      "source": "amq.direct",
+      "vhost": "/",
+      "destination": "worker.dead",
+      "destination_type": "queue",
+      "routing_key": "worker.dead",
+      "arguments": {}
+    },
+    {
+      "source": "amq.direct",
+      "vhost": "/",
+      "destination": "worker.lazy",
+      "destination_type": "queue",
+      "routing_key": "worker.lazy",
+      "arguments": {}
+    }
+  ]
+}

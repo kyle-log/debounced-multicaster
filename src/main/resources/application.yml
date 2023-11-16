@@ -1,0 +1,8 @@
+debug: true
+
+spring:
+  rabbitmq:
+    addresses: localhost:5672
+    username: kyle
+    password: 1234
+    connection-timeout: 1000
