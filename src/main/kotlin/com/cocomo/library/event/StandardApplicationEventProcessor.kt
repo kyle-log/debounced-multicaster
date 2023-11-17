@@ -1,11 +1,12 @@
 package com.cocomo.library.event
 
 import org.springframework.context.ApplicationEvent
-import org.springframework.context.event.GenericApplicationListener
+import org.springframework.context.ApplicationListener
 
 class StandardApplicationEventProcessor : ApplicationEventProcessor {
-    override fun process(listener: GenericApplicationListener, event: ApplicationEvent) {
-        println("on application event")
-        listener.onApplicationEvent(event)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun process(listener: ApplicationListener<*>, event: ApplicationEvent) {
+        (listener as ApplicationListener<ApplicationEvent>).onApplicationEvent(event)
     }
 }

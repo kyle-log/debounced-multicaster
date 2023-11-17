@@ -2,9 +2,9 @@ package com.cocomo.library.debounce
 
 import com.cocomo.library.event.EventPublisher
 import com.cocomo.library.event.Millis
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.redis.core.RedisOperations
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 class StandardDebouncedExecutor(
     val eventPublisher: EventPublisher,
@@ -13,18 +13,29 @@ class StandardDebouncedExecutor(
 
     private val ops = redis.opsForValue()
 
-    override fun execute(key: String, ttl: Millis, f: () -> Unit) {
-        if (alreadyDebounced(key)) {
-            println("Skipped. key=$key")
-        } else {
-            println("Debounce. key=$key")
-            f()
-            ops.set(key, "1", ttl.value, TimeUnit.MILLISECONDS)
-            eventPublisher.publishLazy(key, ttl)
+    override fun execute(event: DebouncedEvent, f: () -> Unit) {
+        when {
+            event.debounceFinished() -> f()
+            event.inDebounce() -> skip()
+                .also { println("Skipped. ${event.debounceKey}") }
+            else -> startDebounce(event)
+                .also { println("Start. ${event.debounceKey}") }
         }
     }
 
-    private fun alreadyDebounced(key: String): Boolean {
-        return runCatching { ops.get(key) }.getOrNull() != null
+    private fun startDebounce(event: DebouncedEvent) {
+        ops.set(event.debounceKey, ANY_VALUE, Duration.ofMillis(event.debounceTtlMillis))
+        eventPublisher.publishLazy(event.debounce(), Millis.of(event.debounceTtlMillis))
+    }
+
+    private fun DebouncedEvent.debounceFinished(): Boolean = this.debounced
+
+    private fun DebouncedEvent.inDebounce(): Boolean = runCatching {
+        ops.get(this.debounceKey)
+    }.getOrNull() != null
+
+    companion object {
+        private const val ANY_VALUE: String = "1"
+        private fun skip() = Unit
     }
 }
