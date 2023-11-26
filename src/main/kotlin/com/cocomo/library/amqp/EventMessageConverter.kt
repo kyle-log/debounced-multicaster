@@ -8,9 +8,6 @@ import org.springframework.amqp.core.MessagePropertiesBuilder
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
 
-/**
- * @author arawn.park@daangn.com
- */
 class EventMessageConverter(
     val defaultExchange: String = "amq.fanout",
 ) {

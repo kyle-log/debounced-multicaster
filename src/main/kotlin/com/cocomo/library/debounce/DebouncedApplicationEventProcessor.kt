@@ -11,7 +11,7 @@ class DebouncedApplicationEventProcessor(
     private val debouncedExecutor: DebouncedExecutor,
 ) : ApplicationEventProcessor {
 
-    override fun process(listener: ApplicationListener<*>, event: ApplicationEvent) {
+    override fun process(listener: ApplicationListener<ApplicationEvent>, event: ApplicationEvent) {
         if (listener !is GenericApplicationListener) {
             delegate.process(listener, event)
             return
